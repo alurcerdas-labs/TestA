@@ -615,34 +615,27 @@
 
 </div>
 
-<!-- AR Modal -->
-<div class="ar-modal-overlay" id="arModal">
-  <button class="ar-modal-close" onclick="closeAR()">&times;</button>
-  <div class="ar-modal-title" id="arModalTitle"></div>
-  <div class="ar-modal-body">
-    <model-viewer
-      id="arViewer"
-      ar
-      ar-modes="webxr scene-viewer quick-look"
-      camera-controls
-      touch-action="pan-y"
-      auto-rotate
-      shadow-intensity="1"
-      exposure="1"
-      loading="eager"
-      style="width:100%; height:100%; border-radius:8px;"
-    >
-    </model-viewer>
-  </div>
-  <button class="ar-button" id="arActivateBtn" onclick="activateAR()">&#x1f4f7; View in AR</button>
-  <div class="ar-hint-modal">Rotate with finger &bull; Pinch to zoom</div>
+<!-- Hidden model-viewer for AR activation -->
+<model-viewer
+  id="arViewer"
+  ar
+  ar-modes="webxr scene-viewer quick-look"
+  loading="eager"
+  style="position:fixed; top:-9999px; left:-9999px; width:1px; height:1px; opacity:0; pointer-events:none;"
+>
+</model-viewer>
+
+<!-- Loading overlay -->
+<div id="arLoading" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.85); z-index:9999; justify-content:center; align-items:center; flex-direction:column;">
+  <div style="width:36px; height:36px; border:2px solid rgba(201,162,77,0.2); border-top-color:#c9a24d; border-radius:50%; animation:spin 0.8s linear infinite;"></div>
+  <div style="color:#c9a24d; font-family:'Outfit',sans-serif; font-size:0.65rem; letter-spacing:3px; text-transform:uppercase; margin-top:14px;">Loading AR...</div>
 </div>
+<style>@keyframes spin { to { transform: rotate(360deg); } }</style>
 
 <script>
 (function() {
   'use strict';
 
-  // ===== CONFIGURATION =====
   var MODEL_BASE = 'models';
 
   var AR_ITEMS = {
@@ -672,7 +665,14 @@
     }
   };
 
-  // ===== BUILD MODEL PATHS =====
+  function getOS() {
+    var ua = navigator.userAgent || navigator.vendor;
+    if (/iPad|iPhone|iPod/.test(ua) && !window.MSStream) return 'ios';
+    if (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1) return 'ios';
+    if (/android/i.test(ua)) return 'android';
+    return 'other';
+  }
+
   function getModelPath(item, format) {
     var config = AR_ITEMS[item];
     if (!config) return null;
@@ -680,49 +680,58 @@
     return MODEL_BASE + '/' + config.folder + '/' + ext;
   }
 
-  // ===== OPEN AR MODAL =====
-  window.openAR = function(item) {
-    var config = AR_ITEMS[item];
-    if (!config) return;
+  // ===== iOS: Direct AR Quick Look =====
+  function launchIOSAR(item) {
+    var usdzPath = getModelPath(item, 'ios');
+    if (!usdzPath) return;
 
+    var fullUrl = new URL(usdzPath, window.location.href).href;
+    var a = document.createElement('a');
+    a.setAttribute('rel', 'ar');
+    a.setAttribute('href', fullUrl);
+    var img = document.createElement('img');
+    a.appendChild(img);
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  }
+
+  // ===== Android: model-viewer auto-activate AR =====
+  function launchAndroidAR(item) {
     var viewer = document.getElementById('arViewer');
-    var modal = document.getElementById('arModal');
-    var title = document.getElementById('arModalTitle');
-
+    var loading = document.getElementById('arLoading');
     var glbPath = getModelPath(item, 'android');
     var usdzPath = getModelPath(item, 'ios');
+    if (!glbPath) return;
 
+    loading.style.display = 'flex';
     viewer.setAttribute('src', glbPath);
     viewer.setAttribute('ios-src', usdzPath);
-    title.textContent = config.title;
-
-    modal.classList.add('active');
-    document.body.style.overflow = 'hidden';
 
     viewer.addEventListener('load', function onLoad() {
       viewer.removeEventListener('load', onLoad);
-      if (viewer.canActivateAR) {
-        document.getElementById('arActivateBtn').style.display = 'block';
-      }
+      setTimeout(function() {
+        if (viewer.canActivateAR) {
+          viewer.activateAR();
+        }
+        loading.style.display = 'none';
+      }, 300);
     });
-  };
 
-  // ===== ACTIVATE AR =====
-  window.activateAR = function() {
-    var viewer = document.getElementById('arViewer');
-    if (viewer.canActivateAR) {
-      viewer.activateAR();
+    // Timeout fallback
+    setTimeout(function() {
+      loading.style.display = 'none';
+    }, 10000);
+  }
+
+  // ===== MAIN LAUNCH =====
+  window.openAR = function(item) {
+    var os = getOS();
+    if (os === 'ios') {
+      launchIOSAR(item);
+    } else {
+      launchAndroidAR(item);
     }
-  };
-
-  // ===== CLOSE MODAL =====
-  window.closeAR = function() {
-    var modal = document.getElementById('arModal');
-    var viewer = document.getElementById('arViewer');
-    modal.classList.remove('active');
-    document.body.style.overflow = '';
-    viewer.removeAttribute('src');
-    viewer.removeAttribute('ios-src');
   };
 
 })();
