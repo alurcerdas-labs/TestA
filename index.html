@@ -696,47 +696,23 @@
     document.body.removeChild(a);
   }
 
-  // ===== Android: model-viewer auto-activate AR =====
+  // ===== Android: Direct Scene Viewer intent (skip model-viewer) =====
   function launchAndroidAR(item) {
-    var viewer = document.getElementById('arViewer');
-    var loading = document.getElementById('arLoading');
     var glbPath = getModelPath(item, 'android');
-    var usdzPath = getModelPath(item, 'ios');
     if (!glbPath) return;
 
-    loading.style.display = 'flex';
+    var fullUrl = new URL(glbPath, window.location.href).href;
 
-    // Remove old listeners
-    var newViewer = viewer.cloneNode(true);
-    viewer.parentNode.replaceChild(newViewer, viewer);
+    // Direct Scene Viewer intent with ar_only mode — no 3D preview
+    var intentUrl = 'intent://arvr.google.com/scene-viewer/1.0?file=' +
+      encodeURIComponent(fullUrl) +
+      '&mode=ar_only' +
+      '&title=' + encodeURIComponent(AR_ITEMS[item].title) +
+      '#Intent;scheme=https;package=com.google.android.googlequicksearchbox;action=android.intent.action.VIEW;S.browser_fallback_url=' +
+      encodeURIComponent(window.location.href) +
+      ';end;';
 
-    newViewer.setAttribute('src', glbPath);
-    newViewer.setAttribute('ios-src', usdzPath);
-    newViewer.setAttribute('ar', '');
-    newViewer.setAttribute('ar-modes', 'webxr scene-viewer quick-look');
-
-    // Auto-activate AR as soon as model is ready
-    newViewer.addEventListener('load', function() {
-      // Small delay to ensure AR is ready
-      var tryAR = function(attempts) {
-        if (attempts <= 0) {
-          loading.style.display = 'none';
-          return;
-        }
-        if (newViewer.canActivateAR) {
-          newViewer.activateAR();
-          loading.style.display = 'none';
-        } else {
-          setTimeout(function() { tryAR(attempts - 1); }, 200);
-        }
-      };
-      tryAR(20); // Try up to 20 times (4 seconds)
-    });
-
-    // Timeout fallback
-    setTimeout(function() {
-      loading.style.display = 'none';
-    }, 10000);
+    window.location.href = intentUrl;
   }
 
   // ===== MAIN LAUNCH =====
