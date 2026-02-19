@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Wood & Fire — Artisan Pizzeria</title>
+
+<!-- model-viewer: Google's official AR web component -->
+<script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400;1,500&family=Outfit:wght@200;300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0a;
+    --bg-card: #141414;
+    --bg-elevated: #1c1c1c;
+    --cream: #e8dcc4;
+    --cream-soft: #c8bca6;
+    --gold: #c9a24d;
+    --gold-bright: #ddb95e;
+    --gold-dim: #8a7034;
+    --ember: #d4532a;
+    --ember-glow: #e8714f;
+    --white: #f5efe3;
+    --muted: #5a5a5a;
+    --border: rgba(201,162,77,0.08);
+    --border-gold: rgba(201,162,77,0.18);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Outfit', sans-serif;
+    background: var(--bg);
+    color: var(--cream);
+    min-height: 100vh;
+    overflow-x: hidden;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .menu-container {
+    max-width: 480px;
+    margin: 0 auto;
+    position: relative;
+    min-height: 100vh;
+    background: var(--bg);
+    background-image:
+      radial-gradient(ellipse at 50% 0%, rgba(201,162,77,0.04) 0%, transparent 60%),
+      radial-gradient(ellipse at 50% 100%, rgba(212,83,42,0.03) 0%, transparent 50%);
+  }
+
+  /* ===== HERO ===== */
+  .hero {
+    position: relative;
+    padding: 52px 28px 32px;
+    text-align: center;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 180px;
+    background: radial-gradient(ellipse at 50% 0%, rgba(201,162,77,0.06) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .brand-crest {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 56px;
+    height: 56px;
+    border: 1px solid var(--border-gold);
+    border-radius: 50%;
+    margin-bottom: 16px;
+    position: relative;
+  }
+
+  .brand-crest::after {
+    content: '';
+    position: absolute;
+    inset: 3px;
+    border: 1px solid rgba(201,162,77,0.08);
+    border-radius: 50%;
+  }
+
+  .brand-crest svg { width: 26px; height: 26px; }
+
+  .hero h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 300;
+    font-size: 2rem;
+    color: var(--white);
+    letter-spacing: 8px;
+    text-transform: uppercase;
+    line-height: 1.2;
+  }
+
+  .hero .tagline {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 300;
+    font-style: italic;
+    font-size: 0.85rem;
+    letter-spacing: 4px;
+    color: var(--gold);
+    margin-top: 6px;
+    text-transform: lowercase;
+  }
+
+  .hero-ornament {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    margin: 20px auto 0;
+    width: 60%;
+  }
+
+  .hero-ornament .line {
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold-dim), transparent);
+  }
+
+  .hero-ornament .diamond {
+    width: 6px; height: 6px;
+    border: 1px solid var(--gold);
+    transform: rotate(45deg);
+  }
+
+  .hero-desc {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-weight: 300;
+    font-size: 0.88rem;
+    color: var(--muted);
+    line-height: 1.7;
+    margin-top: 18px;
+    padding: 0 4px;
+    letter-spacing: 0.3px;
+  }
+
+  /* ===== SECTION LABEL ===== */
+  .section-label {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 0 28px;
+    margin: 32px 0 22px;
+  }
+
+  .section-label .tag {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 500;
+    font-size: 0.55rem;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--gold);
+    border: 1px solid var(--border-gold);
+    padding: 7px 16px;
+    border-radius: 2px;
+    white-space: nowrap;
+  }
+
+  .section-label .rule {
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, var(--border-gold), transparent);
+  }
+
+  /* ===== PIZZA CARDS ===== */
+  .pizza-grid {
+    padding: 0 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .pizza-card {
+    position: relative;
+    border-radius: 12px;
+    overflow: hidden;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition: transform 0.2s ease, border-color 0.3s ease;
+  }
+
+  .pizza-card:active {
+    transform: scale(0.985);
+    border-color: var(--border-gold);
+  }
+
+  .pizza-card .card-inner {
+    display: flex;
+    min-height: 155px;
+  }
+
+  .pizza-card:nth-child(even) .card-inner {
+    flex-direction: row-reverse;
+  }
+
+  .pizza-card .card-image {
+    width: 40%;
+    flex-shrink: 0;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .pizza-card .card-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.5s ease;
+  }
+
+  .pizza-card:active .card-image img {
+    transform: scale(1.06);
+  }
+
+  .pizza-card .card-image::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(201,162,77,0.08) 0%, transparent 50%, rgba(201,162,77,0.04) 100%);
+    pointer-events: none;
+  }
+
+  .pizza-card .ar-badge {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background: rgba(10,10,10,0.8);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    color: var(--gold-bright);
+    font-size: 0.45rem;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 5px 10px;
+    border-radius: 2px;
+    border: 1px solid rgba(201,162,77,0.15);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    z-index: 2;
+  }
+
+  .pizza-card:nth-child(even) .ar-badge {
+    left: auto;
+    right: 10px;
+  }
+
+  .ar-badge .ar-dot {
+    width: 4px; height: 4px;
+    background: var(--gold-bright);
+    border-radius: 50%;
+    display: inline-block;
+    box-shadow: 0 0 4px rgba(221,185,94,0.5);
+  }
+
+  .pizza-card .card-content {
+    flex: 1;
+    padding: 18px 20px 16px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .pizza-card .card-number {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 200;
+    font-size: 0.55rem;
+    letter-spacing: 3px;
+    color: var(--gold-dim);
+    margin-bottom: 4px;
+  }
+
+  .pizza-card .card-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 600;
+    font-size: 1.4rem;
+    color: var(--white);
+    letter-spacing: 1px;
+    margin-bottom: 6px;
+  }
+
+  .pizza-card .card-desc {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 200;
+    font-size: 0.7rem;
+    color: var(--cream-soft);
+    line-height: 1.6;
+    margin-bottom: 14px;
+    letter-spacing: 0.2px;
+  }
+
+  .pizza-card .card-bottom {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .pizza-card .card-price {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 600;
+    font-size: 1.4rem;
+    color: var(--gold-bright);
+  }
+
+  .pizza-card .card-view-btn {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 400;
+    font-size: 0.55rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--gold);
+    background: transparent;
+    border: 1px solid var(--border-gold);
+    padding: 6px 14px;
+    border-radius: 2px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .pizza-card:active .card-view-btn {
+    background: rgba(201,162,77,0.08);
+    border-color: var(--gold);
+  }
+
+  /* ===== FOOTER ===== */
+  .menu-footer {
+    text-align: center;
+    padding: 40px 28px 32px;
+    margin-top: 20px;
+    border-top: 1px solid var(--border);
+    position: relative;
+  }
+
+  .menu-footer::before {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 120px;
+    background: radial-gradient(ellipse at 50% 100%, rgba(212,83,42,0.04) 0%, transparent 60%);
+    pointer-events: none;
+  }
+
+  .footer-ornament {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+
+  .footer-ornament .line {
+    width: 20px;
+    height: 1px;
+    background: var(--gold-dim);
+  }
+
+  .footer-ornament .diamond {
+    width: 4px; height: 4px;
+    border: 1px solid var(--gold-dim);
+    transform: rotate(45deg);
+  }
+
+  .footer-text {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-weight: 300;
+    font-size: 0.82rem;
+    color: var(--muted);
+    line-height: 1.7;
+    letter-spacing: 0.3px;
+  }
+
+  .footer-brand {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 400;
+    font-size: 0.5rem;
+    letter-spacing: 5px;
+    text-transform: uppercase;
+    color: var(--gold-dim);
+    margin-top: 24px;
+  }
+
+  /* ===== AR MODAL ===== */
+  .ar-modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.94);
+    z-index: 9999;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+  }
+
+  .ar-modal-overlay.active {
+    display: flex;
+  }
+
+  .ar-modal-close {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(201,162,77,0.15);
+    color: var(--gold);
+    font-size: 1.2rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+  }
+
+  .ar-modal-title {
+    color: var(--gold-bright);
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 600;
+    font-size: 1.3rem;
+    letter-spacing: 2px;
+    margin-bottom: 12px;
+    text-align: center;
+    text-transform: uppercase;
+  }
+
+  .ar-modal-body {
+    width: 90%;
+    max-width: 400px;
+    height: 55vh;
+    position: relative;
+  }
+
+  .ar-modal-body model-viewer {
+    width: 100%;
+    height: 100%;
+    border-radius: 8px;
+    background: #0a0a0a;
+    --poster-color: #0a0a0a;
+  }
+
+  .ar-button {
+    display: block;
+    width: 70%;
+    max-width: 260px;
+    margin: 18px auto 0;
+    padding: 14px 24px;
+    background: transparent;
+    color: var(--gold-bright);
+    border: 1px solid var(--gold);
+    border-radius: 2px;
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 500;
+    cursor: pointer;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    transition: all 0.3s ease;
+  }
+
+  .ar-button:active {
+    background: rgba(201,162,77,0.1);
+  }
+
+  .ar-hint-modal {
+    color: var(--muted);
+    font-size: 0.6rem;
+    text-align: center;
+    margin-top: 10px;
+    letter-spacing: 1px;
+    font-weight: 300;
+  }
+
+  /* ===== ANIMATIONS ===== */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .hero { animation: fadeUp 0.8s ease both; }
+  .section-label { animation: fadeUp 0.7s ease 0.2s both; }
+  .pizza-card:nth-child(1) { animation: fadeUp 0.6s ease 0.3s both; }
+  .pizza-card:nth-child(2) { animation: fadeUp 0.6s ease 0.4s both; }
+  .pizza-card:nth-child(3) { animation: fadeUp 0.6s ease 0.5s both; }
+  .pizza-card:nth-child(4) { animation: fadeUp 0.6s ease 0.6s both; }
+  .menu-footer { animation: fadeUp 0.6s ease 0.7s both; }
+</style>
+</head>
+<body>
+
+<div class="menu-container">
+
+  <div class="hero">
+    <div class="brand-crest">
+      <svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M18 5C18 5 10 14 10 22C10 26.4 13.6 30 18 30C22.4 30 26 26.4 26 22C26 14 18 5 18 5Z" fill="none" stroke="#c9a24d" stroke-width="1" stroke-linecap="round"/>
+        <path d="M18 12C18 12 14 18 14 22C14 24.2 15.8 26 18 26C20.2 26 22 24.2 22 22C22 18 18 12 18 12Z" fill="#c9a24d" opacity="0.12"/>
+        <path d="M18 18C18 18 16 20 16 22C16 23.1 16.9 24 18 24C19.1 24 20 23.1 20 22C20 20 18 18 18 18Z" fill="#ddb95e" opacity="0.25"/>
+      </svg>
+    </div>
+    <h1>Wood &amp; Fire</h1>
+    <div class="tagline">artisan pizzeria</div>
+    <div class="hero-ornament">
+      <div class="line"></div>
+      <div class="diamond"></div>
+      <div class="line"></div>
+    </div>
+    <p class="hero-desc">Unique wood fired pizzas crafted with passion.<br>Tap any pizza to view it in augmented reality.</p>
+  </div>
+
+  <div class="section-label">
+    <div class="tag">The Menu</div>
+    <div class="rule"></div>
+  </div>
+
+  <div class="pizza-grid">
+
+    <div class="pizza-card" onclick="openAR('hawaiian')">
+      <div class="card-inner">
+        <div class="card-image">
+          <img src="images/hawaiian.jpg" alt="Hawaiian Pizza">
+          <div class="ar-badge"><span class="ar-dot"></span> View AR</div>
+        </div>
+        <div class="card-content">
+          <div class="card-number">— 01</div>
+          <div class="card-name">Hawaiian</div>
+          <div class="card-desc">Tomato sauce, mozzarella, ham &amp; pineapple</div>
+          <div class="card-bottom">
+            <div class="card-price">$16.80</div>
+            <div class="card-view-btn">View</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="pizza-card" onclick="openAR('chicken')">
+      <div class="card-inner">
+        <div class="card-image">
+          <img src="images/chicken.jpg" alt="Chicken Pizza">
+          <div class="ar-badge"><span class="ar-dot"></span> View AR</div>
+        </div>
+        <div class="card-content">
+          <div class="card-number">— 02</div>
+          <div class="card-name">Chicken</div>
+          <div class="card-desc">Tomato sauce, mozzarella, chicken, pineapple &amp; bbq sauce</div>
+          <div class="card-bottom">
+            <div class="card-price">$17.75</div>
+            <div class="card-view-btn">View</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="pizza-card" onclick="openAR('salami')">
+      <div class="card-inner">
+        <div class="card-image">
+          <img src="images/salami.jpg" alt="Salami Pizza">
+          <div class="ar-badge"><span class="ar-dot"></span> View AR</div>
+        </div>
+        <div class="card-content">
+          <div class="card-number">— 03</div>
+          <div class="card-name">Salami</div>
+          <div class="card-desc">Tomato sauce, mozzarella &amp; mild salami</div>
+          <div class="card-bottom">
+            <div class="card-price">$15.55</div>
+            <div class="card-view-btn">View</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="pizza-card" onclick="openAR('original')">
+      <div class="card-inner">
+        <div class="card-image">
+          <img src="images/original.jpg" alt="Original Pizza">
+          <div class="ar-badge"><span class="ar-dot"></span> View AR</div>
+        </div>
+        <div class="card-content">
+          <div class="card-number">— 04</div>
+          <div class="card-name">Original</div>
+          <div class="card-desc">Tomato sauce, mozzarella &amp; oregano</div>
+          <div class="card-bottom">
+            <div class="card-price">$18.95</div>
+            <div class="card-view-btn">View</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="menu-footer">
+    <div class="footer-ornament">
+      <div class="line"></div>
+      <div class="diamond"></div>
+      <div class="line"></div>
+    </div>
+    <p class="footer-text">Relax in the friendly ambience as you enjoy<br>the aromas of the wood ovens or sit al fresco<br>and soak up the sunshine.</p>
+    <div class="footer-brand">Wood &amp; Fire Pizzeria</div>
+  </div>
+
+</div>
+
+<!-- AR Modal -->
+<div class="ar-modal-overlay" id="arModal">
+  <button class="ar-modal-close" onclick="closeAR()">&times;</button>
+  <div class="ar-modal-title" id="arModalTitle"></div>
+  <div class="ar-modal-body">
+    <model-viewer
+      id="arViewer"
+      ar
+      ar-modes="webxr scene-viewer quick-look"
+      camera-controls
+      touch-action="pan-y"
+      auto-rotate
+      shadow-intensity="1"
+      exposure="1"
+      loading="eager"
+      style="width:100%; height:100%; border-radius:8px;"
+    >
+    </model-viewer>
+  </div>
+  <button class="ar-button" id="arActivateBtn" onclick="activateAR()">&#x1f4f7; View in AR</button>
+  <div class="ar-hint-modal">Rotate with finger &bull; Pinch to zoom</div>
+</div>
+
+<script>
+(function() {
+  'use strict';
+
+  // ===== CONFIGURATION =====
+  var MODEL_BASE = 'models';
+
+  var AR_ITEMS = {
+    hawaiian: {
+      folder: 'hawaiian',
+      title: 'Hawaiian',
+      glb: 'pizza1_android.glb',
+      usdz: 'pizza1_ios.usdz'
+    },
+    chicken: {
+      folder: 'chicken',
+      title: 'Chicken',
+      glb: 'pizza2_android.glb',
+      usdz: 'pizza2_ios.usdz'
+    },
+    salami: {
+      folder: 'salami',
+      title: 'Salami',
+      glb: 'pizza3_android.glb',
+      usdz: 'pizza3_ios.usdz'
+    },
+    original: {
+      folder: 'original',
+      title: 'Original',
+      glb: 'pizza4_android.glb',
+      usdz: 'pizza4_ios.usdz'
+    }
+  };
+
+  // ===== BUILD MODEL PATHS =====
+  function getModelPath(item, format) {
+    var config = AR_ITEMS[item];
+    if (!config) return null;
+    var ext = (format === 'ios') ? config.usdz : config.glb;
+    return MODEL_BASE + '/' + config.folder + '/' + ext;
+  }
+
+  // ===== OPEN AR MODAL =====
+  window.openAR = function(item) {
+    var config = AR_ITEMS[item];
+    if (!config) return;
+
+    var viewer = document.getElementById('arViewer');
+    var modal = document.getElementById('arModal');
+    var title = document.getElementById('arModalTitle');
+
+    var glbPath = getModelPath(item, 'android');
+    var usdzPath = getModelPath(item, 'ios');
+
+    viewer.setAttribute('src', glbPath);
+    viewer.setAttribute('ios-src', usdzPath);
+    title.textContent = config.title;
+
+    modal.classList.add('active');
+    document.body.style.overflow = 'hidden';
+
+    viewer.addEventListener('load', function onLoad() {
+      viewer.removeEventListener('load', onLoad);
+      if (viewer.canActivateAR) {
+        document.getElementById('arActivateBtn').style.display = 'block';
+      }
+    });
+  };
+
+  // ===== ACTIVATE AR =====
+  window.activateAR = function() {
+    var viewer = document.getElementById('arViewer');
+    if (viewer.canActivateAR) {
+      viewer.activateAR();
+    }
+  };
+
+  // ===== CLOSE MODAL =====
+  window.closeAR = function() {
+    var modal = document.getElementById('arModal');
+    var viewer = document.getElementById('arViewer');
+    modal.classList.remove('active');
+    document.body.style.overflow = '';
+    viewer.removeAttribute('src');
+    viewer.removeAttribute('ios-src');
+  };
+
+})();
+</script>
+
+</body>
+</html>
