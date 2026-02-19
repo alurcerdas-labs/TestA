@@ -682,6 +682,7 @@
 
   // ===== iOS: Direct AR Quick Look =====
   function launchIOSAR(item) {
+<<<<<<< HEAD
     var usdzPath = getModelPath(item, 'ios');
     if (!usdzPath) return;
 
@@ -722,6 +723,40 @@
     setTimeout(function() {
       loading.style.display = 'none';
     }, 10000);
+=======
+    var usdzPath = getModelPath(item, 'ios');
+    if (!usdzPath) return;
+
+    var fullUrl = new URL(usdzPath, window.location.href).href;
+    var a = document.createElement('a');
+    a.setAttribute('rel', 'ar');
+    a.setAttribute('href', fullUrl);
+    var img = document.createElement('img');
+    a.appendChild(img);
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  }
+
+  // ===== Android: Direct Scene Viewer intent (skip model-viewer) =====
+  function launchAndroidAR(item) {
+    var glbPath = getModelPath(item, 'android');
+    if (!glbPath) return;
+
+    var fullUrl = new URL(glbPath, window.location.href).href;
+
+    // Direct Scene Viewer intent with ar_only mode — no 3D preview
+    var intentUrl = 'intent://arvr.google.com/scene-viewer/1.0?file=' +
+      encodeURIComponent(fullUrl) +
+      '&mode=ar_only' +
+      '&resizable=false' +
+      '&title=' + encodeURIComponent(AR_ITEMS[item].title) +
+      '#Intent;scheme=https;package=com.google.android.googlequicksearchbox;action=android.intent.action.VIEW;S.browser_fallback_url=' +
+      encodeURIComponent(window.location.href) +
+      ';end;';
+
+    window.location.href = intentUrl;
+>>>>>>> 7449f0aceaf88356016349861116a6c12cf66640
   }
 
   // ===== MAIN LAUNCH =====
