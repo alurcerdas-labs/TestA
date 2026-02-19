@@ -488,9 +488,10 @@
     var usdzPath = getModelPath(item, 'ios');
     if (!usdzPath) return;
     var fullUrl = new URL(usdzPath, window.location.href).href;
+    // Add #allowsContentScaling=0 to disable pinch-to-zoom in AR Quick Look
     var a = document.createElement('a');
     a.setAttribute('rel', 'ar');
-    a.setAttribute('href', fullUrl);
+    a.setAttribute('href', fullUrl + '#allowsContentScaling=0');
     var img = document.createElement('img');
     a.appendChild(img);
     document.body.appendChild(a);
