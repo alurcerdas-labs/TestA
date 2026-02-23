@@ -461,9 +461,9 @@
 
   var AR_ITEMS = {
     hawaiian: { folder: 'hawaiian', title: 'Hawaiian', glb: 'pizza1_android.glb', usdz: 'pizza1_ios.usdz' },
-    chicken:  { folder: 'chicken',  title: 'Chicken',  glb: 'pizza2_android.glb', usdz: 'pizza2_ios.usdz' },
-    salami:   { folder: 'salami',   title: 'Salami',   glb: 'pizza3_android.glb', usdz: 'pizza3_ios.usdz' },
-    original: { folder: 'original', title: 'Original', glb: 'pizza4_android.glb', usdz: 'pizza4_ios.usdz' }
+    chicken:  { folder: 'chicken',  title: 'Chicken',  glb: 'PizzaSlice.glb', usdz: 'PizzaSlice.usdz' },
+    salami:   { folder: 'salami',   title: 'Salami',   glb: 'PlatedBurger.glb', usdz: 'PlatedBurger.usdz' },
+    original: { folder: 'original', title: 'Original', glb: 'PlatedPasta.glb', usdz: 'PlatedPasta.usdz' }
   };
 
   // ===== OS DETECTION =====
@@ -488,10 +488,9 @@
     var usdzPath = getModelPath(item, 'ios');
     if (!usdzPath) return;
     var fullUrl = new URL(usdzPath, window.location.href).href;
-    // Add #allowsContentScaling=0 to disable pinch-to-zoom in AR Quick Look
     var a = document.createElement('a');
     a.setAttribute('rel', 'ar');
-    a.setAttribute('href', fullUrl + '#allowsContentScaling=0');
+    a.setAttribute('href', fullUrl);
     var img = document.createElement('img');
     a.appendChild(img);
     document.body.appendChild(a);
